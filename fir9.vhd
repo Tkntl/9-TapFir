@@ -8,7 +8,7 @@ entity Fir9 is
     generic (
         nbits   :   integer := 16;
         FirL    :   integer := 9
-		  );
+	);
 
     port (
         Mclk    :   in std_logic;
@@ -16,7 +16,7 @@ entity Fir9 is
         n_rst   :   in std_logic;
         D       :   in signed((nbits-1) downto 0);
         Q       :   out signed((nbits-1) downto 0)
-		  );
+	);
 
 end Fir9;
 
@@ -24,14 +24,14 @@ architecture rtl of Fir9 is
 
     type fifo is array (0 to FirL-1) of signed(nbits -1 downto 0);
     signal infifo: fifo := (others => (others => '0'));
-	 signal FirOut	: signed(nbits - 1 downto 0) := (others => '0');
+	signal FirOut	: signed(nbits - 1 downto 0) := (others => '0');
 begin
     
     FifoIn: process(Sclk)
         begin
-            if rising_edge(Sclk) then
-                infifo <= D & infifo(0 to FirL - 2);
-				end if;
+        	if rising_edge(Sclk) then
+                	infifo <= D & infifo(0 to FirL - 2);
+		end if;
     end process FifoIn;
 
 Fir: process(all)
@@ -44,8 +44,8 @@ Fir: process(all)
 	 
 	 variable fir_calc		: signed(nbits - 1 downto 0):=(others => '0');
 	 variable fir_coef		: signed(nbits-1 downto 0) :=(others => '0');
-	 variable En 				: std_ulogic := '0';
-	 variable cntr				: integer := 0;
+	 variable En 			: std_ulogic := '0';
+	 variable cntr			: integer := 0;
 	 
 	begin
 		if rising_edge(Mclk) then
@@ -76,11 +76,11 @@ Fir: process(all)
 		end if;
 end process Fir;					
     
-    FifoOut: process(Sclk)
-        begin
-            if rising_edge(Sclk) then
-                Q <= FirOut;
-				end if;
+FifoOut: process(Sclk)
+	begin
+        	if rising_edge(Sclk) then
+                	Q <= FirOut;
+		end if;
     end process;
 end rtl;
  
