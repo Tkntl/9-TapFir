@@ -8,7 +8,6 @@ entity Fir9 is
     generic (
         nbits   :   integer := 16;
         FirL    :   integer := 9
-		  --Coeff	 :	  integer := 32767
 		  );
 
     port (
@@ -45,7 +44,6 @@ Fir: process(all)
 	 
 	 variable fir_calc		: signed(nbits - 1 downto 0):=(others => '0');
 	 variable fir_coef		: signed(nbits-1 downto 0) :=(others => '0');
-	 variable fir_calc_tmp	: signed(2*nbits - 1 downto 0);
 	 variable En 				: std_ulogic := '0';
 	 variable cntr				: integer := 0;
 	 
@@ -60,15 +58,13 @@ Fir: process(all)
 						En := '0';
 					end if;
 				WHEN CONV =>
-					-- TO DO IMPLEMENT MULTIPLIER
-					--fir_calc_tmp := infifo(FirL -1)*(to_signed(Coeff,nbits));
-					--fir_calc := fir_calc_tmp(2*nbits-2 downto nbits - 1);
+					
 					FOR I in 0 to FirL-1 loop
 						fir_coef := (to_signed(Coeff(I),nbits));
 						fir_calc := fir_calc + FirMult(infifo(I), fir_coef);
-						--cntr := cntr + 1;
+						
 					end loop;
-					--testQ <= fir_calc_tmp;
+					
 					fir_fsm := FINISH;
 				WHEN FINISH =>
 					FirOut <= fir_calc;
