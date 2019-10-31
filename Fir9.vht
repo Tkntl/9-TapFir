@@ -1,16 +1,21 @@
 LIBRARY ieee;                                               
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;                                
+use ieee.numeric_std.all;
+use std.textio.all;
+use ieee.std_logic_textio.all;
 
 entity Fir9_tb IS
+    generic (
+        nbits   :   integer := 16
+        );
 end Fir9_tb;
 
 architecture Fir9_arch OF Fir9_tb IS
 
-    signal D        : signed(15 downto 0) := (others => '0');
+    signal D        : signed(nbits - 1 downto 0) := (others => '0');
     signal Mclk     : std_logic := '0';
     signal n_rst    : std_logic := '1';
-    signal Q        : signed(15 downto 0);
+    signal Q        : signed(nbits - 1 downto 0);
     signal Sclk     : std_logic := '0';
 
     constant stime	: time := 100 ns;
@@ -18,10 +23,10 @@ architecture Fir9_arch OF Fir9_tb IS
 
 component Fir9
 	PORT (
-	D      : in signed(15 downto 0);
+	D      : in signed(nbits - 1 downto 0);
 	Mclk   : in std_logic;
 	n_rst  : in std_logic;
-	Q      : out signed(15 downto 0);
+	Q      : out signed(nbits - 1 downto 0);
 	Sclk   : in std_logic
 	);
 end component;
@@ -47,23 +52,34 @@ Sclock : process
 end process Sclock; 
 
 Signal_gen : process                                              
-
-	-- TO DO implement signal generator
-	type input_array is array (0 to 11) of integer;
-	Constant in_D  : input_array := (0,12629,22134,26163,15408,3286,-9650,-20199,-25750,-24931,-17945,-6519);
-    variable D_tmp : signed(15 downto 0);
+	
+	file stim_file: text open read_mode is "stim_in.txt";
+	variable current_line: line;
+	variable input: integer;
 	 
 	begin                                                         
-        for X in 0 to 10 loop
-			for I in 0 to 11 loop
-				wait for stime;
-				D_tmp := (to_signed(in_D(I),16));
-				D <= D_tmp;
-				wait for stime;
-			end loop;
-		end loop;
         
+        while not endfile(stim_file) loop
+            readline(stim_file,current_line);
+            read(current_line, input);
+            D <= (to_signed(input,nbits));
+            wait until rising_edge(Sclk);
+        end loop;
+        
+        file_close(stim_file);
+        D <= (others => '0');
     wait;
-end process Signal_gen;   
-    -- TO DO Write output to csv file                                     
+end process Signal_gen;
+
+Capture_Out : process
+    file capture: text open write_mode is "output.txt";
+    variable current_line : line;
+    variable output: integer;
+begin
+    output := (to_integer(Q));
+    write(current_line,output);
+    writeline(capture,current_line);
+    wait until falling_edge(Sclk);
+
+end process Capture_Out;
 end Fir9_arch;
