@@ -10,10 +10,10 @@ end;
 package body Fir9_pkg is
     function FirMult(op_l, op_r:signed) return signed is
     
-    variable tmp : signed(2*op_l'left+1 downto 0);
+    variable product : signed(op_l'left + op_r'left + 1 downto 0);
 
     begin
-        tmp := op_l * op_r;
-        return tmp(2*op_l'left downto op_l'left);
+        product := op_l * op_r;
+        return product(op_l'left + op_r'left downto op_r'left);
     end;
 end;
