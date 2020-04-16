@@ -10,10 +10,11 @@ entity Fir9_tb IS
 end Fir9_tb;
 
 architecture Fir9_arch OF Fir9_tb IS
-
+    
+    signal rst_n    : std_logic := '0';
+    
     signal D        : signed(nbits - 1 downto 0) := (others => '0');
     signal Mclk     : std_logic := '0';
-    signal n_rst    : std_logic := '1';
     signal Q        : signed(nbits - 1 downto 0);
     signal Sclk     : std_logic := '0';
 
@@ -24,7 +25,7 @@ component Fir9
 	PORT (
 	D      : in signed(nbits - 1 downto 0);
 	Mclk   : in std_logic;
-	n_rst  : in std_logic;
+	rst_n  : in std_logic;
 	Q      : out signed(nbits - 1 downto 0);
 	Sclk   : in std_logic
 	);
@@ -35,11 +36,16 @@ begin
        
         D      => D,
         Mclk   => Mclk,
-        n_rst  => n_rst,
+        rst_n  => rst_n,
         Q      => Q,
         Sclk   => Sclk
         );
-                                          
+Reset : process
+    begin
+        wait for 2*mtime;
+        rst_n <= '1';
+end process Reset;
+
 Mclock : process
     begin
         Mclk <= not Mclk; wait for mtime;
